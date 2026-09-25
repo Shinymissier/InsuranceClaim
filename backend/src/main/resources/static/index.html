@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Insurance Claim Verification</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="header-inner">
+    <div class="brand-wrap">
+      <div class="brand-mark">✓</div>
+      <div><div class="brand">Insurance Claim</div><small>Verification System</small></div>
+    </div>
+    <div id="liveBadge" class="live-badge hidden">● LIVE</div>
+  </div>
+</header>
+
+<main>
+  <section id="authView" class="auth-shell">
+    <div class="auth-intro">
+      <span class="eyebrow">SECURE ACCESS</span>
+      <h1>Your claim journey, kept simple.</h1>
+      <p>Sign in to track claims, submit documents and follow every verification step from one secure workspace.</p>
+      <div class="feature-list">
+        <div><span>✓</span><div><b>Email verification</b><small>OTP-based account activation</small></div></div>
+        <div><span>✓</span><div><b>Role-based access</b><small>Each role sees its permitted workflow</small></div></div>
+        <div><span>✓</span><div><b>Real-time updates</b><small>Claim status changes appear instantly</small></div></div>
+      </div>
+    </div>
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="tab active" data-view="loginPanel">Login</button>
+        <button class="tab" data-view="verifyPanel">Verify Email</button>
+        <button class="tab" data-view="registerPanel">Create Account</button>
+      </div>
+      <section id="loginPanel" class="auth-panel">
+        <h2>Welcome back</h2><p class="hint">Sign in using your verified account.</p>
+        <form id="loginForm"><label for="username">Username</label><input id="username" autocomplete="username" required /><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required /><button class="primary wide" type="submit">Login</button></form>
+        <p id="loginMessage" class="message"></p><div class="auth-links"><button type="button" class="link-button" data-view="forgotPanel">Forgot password?</button></div><div class="auth-note">New claimant? <button type="button" class="link-button" data-view="registerPanel">Create an account</button></div>
+      </section>
+      <section id="forgotPanel" class="auth-panel hidden">
+        <h2>Forgot password?</h2><p class="hint">Enter your registered email and we will send a password reset OTP.</p>
+        <form id="forgotForm"><label for="forgotEmail">Email</label><input id="forgotEmail" type="email" autocomplete="email" required /><button class="primary wide" type="submit">Send Reset OTP</button></form>
+        <p id="forgotMessage" class="message"></p><div class="auth-links"><button type="button" class="link-button" data-view="resetPasswordPanel">I have the OTP</button> · <button type="button" class="link-button" data-view="loginPanel">Back to Login</button></div>
+      </section>
+      <section id="resetPasswordPanel" class="auth-panel hidden">
+        <h2>Reset password</h2><p class="hint">Enter the OTP from your email and choose a new password.</p>
+        <form id="resetPasswordForm"><label for="resetEmail">Email</label><input id="resetEmail" type="email" autocomplete="email" required /><label for="resetOtp">6-digit OTP</label><input id="resetOtp" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="123456" required /><label for="resetNewPassword">New Password</label><input id="resetNewPassword" type="password" minlength="6" autocomplete="new-password" required /><label for="resetConfirmPassword">Confirm New Password</label><input id="resetConfirmPassword" type="password" minlength="6" autocomplete="new-password" required /><button class="primary wide" type="submit">Reset Password</button></form>
+        <p id="resetMessage" class="message"></p><div class="auth-links"><button type="button" class="link-button" data-view="forgotPanel">Request another OTP</button> · <button type="button" class="link-button" data-view="loginPanel">Back to Login</button></div>
+      </section>
+      <section id="verifyPanel" class="auth-panel hidden">
+        <h2>Verify your email</h2><p class="hint">Enter the OTP sent to your registered email address.</p>
+        <form id="verifyForm"><label for="otpUsername">Username</label><input id="otpUsername" autocomplete="username" required /><label for="otp">6-digit OTP</label><input id="otp" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="123456" required /><button class="primary wide" type="submit">Verify Email</button></form>
+        <div class="button-row"><button class="secondary" id="resendOtpBtn" type="button">Resend OTP</button></div><p id="otpMessage" class="message"></p>
+      </section>
+      <section id="registerPanel" class="auth-panel hidden">
+        <h2>Create claimant account</h2><p class="hint">Claimants can register themselves. Staff accounts are created by an administrator.</p>
+        <form id="registerForm"><label for="regFullName">Full Name</label><input id="regFullName" required /><label for="regEmail">Email</label><input id="regEmail" type="email" required /><label for="regUsername">Username</label><input id="regUsername" autocomplete="username" required /><label for="regPassword">Password</label><input id="regPassword" type="password" minlength="6" autocomplete="new-password" required /><button class="primary wide" type="submit">Create Claimant Account</button></form>
+        <p id="registerMessage" class="message"></p>
+      </section>
+    </div>
+  </section>
+
+  <section id="dashboardView" class="hidden dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand"><div class="sidebar-shield">✓</div><div><b>Insurance Claim</b><small>Verification System</small></div></div>
+      <div class="sidebar-profile"><div class="avatar" id="avatarLetter">U</div><div><b id="sidebarName">User</b><small id="sidebarRole">Role</small></div></div>
+      <nav id="sideNav" class="side-nav"></nav>
+      <button class="logout-side" id="logoutBtn">↪ <span>Logout</span></button>
+    </aside>
+
+    <section class="dashboard-main">
+      <div class="dashboard-top">
+        <div><span class="eyebrow">MY WORKSPACE</span><h2 id="dashboardHeading">Dashboard</h2><p id="userInfo"></p></div>
+        <div class="top-actions"><span id="roleBadge" class="role-badge">USER</span><button class="secondary mobile-logout" id="mobileLogoutBtn">Logout</button></div>
+      </div>
+
+      <section id="view-overview" class="dash-view">
+        <div class="dashboard-welcome">
+          <div><span class="eyebrow">WELCOME BACK</span><h3 id="welcomeTitle">Welcome</h3><p id="welcomeText">Your claim journey is ready.</p></div>
+          <div class="welcome-art" aria-hidden="true"><span class="art-shield">✓</span><span class="art-orbit orbit-one"></span><span class="art-orbit orbit-two"></span></div>
+        </div>
+
+        <div class="overview-focus">
+          <article class="current-claim-card">
+            <div class="section-head-line"><div><span class="eyebrow">CURRENT CLAIM</span><h3 id="currentClaimTitle">No active claim</h3></div><span id="currentClaimStatus" class="status status-muted">—</span></div>
+            <div class="claim-focus-body">
+              <div class="claim-facts">
+                <div><span>Policy</span><strong id="currentPolicy">—</strong></div>
+                <div><span>Claim amount</span><strong id="currentAmount">—</strong></div>
+                <div><span>Incident</span><strong id="currentIncident">—</strong></div>
+                <button id="currentClaimButton" class="primary" type="button">View Claims →</button>
+              </div>
+              <div class="journey-wrap">
+                <div class="journey-line"></div>
+                <div id="claimJourney" class="claim-journey"></div>
+                <div class="journey-caption"><span id="journeyCurrentText">No claim selected</span><span id="journeyNextText"></span></div>
+              </div>
+            </div>
+          </article>
+
+          <aside class="dashboard-side-card">
+            <div class="mini-icon">✦</div>
+            <span class="eyebrow">AT A GLANCE</span>
+            <strong id="glanceCount">0 claims</strong>
+            <p id="glanceText">Your latest claim updates will appear here.</p>
+            <div id="recentUpdate" class="recent-update">No recent update.</div>
+          </aside>
+        </div>
+
+        <div class="dashboard-bottom">
+          <div class="panel quick-panel">
+            <div class="panel-head"><div><h3>Quick Actions</h3><p>Only what you need right now</p></div></div>
+            <div id="quickActions" class="quick-grid"></div>
+          </div>
+          <div class="panel reassurance-panel">
+            <span class="eyebrow">CLAIM JOURNEY</span>
+            <h3>Simple. Clear. Trackable.</h3>
+            <p>Your claim moves through each stage with every action recorded in the system.</p>
+            <div class="tiny-journey"><span>Submit</span><i></i><span>Verify</span><i></i><span>Survey</span><i></i><span>Approve</span><i></i><span>Settle</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-users" class="dash-view hidden">
+        <div class="page-heading"><div><span class="eyebrow">ADMINISTRATION</span><h2>User Management</h2><p>Create and manage authorized staff accounts.</p></div><button class="secondary" id="refreshUsersBtn">Refresh</button></div>
+        <div class="card"><div class="section-heading"><div><h3>Create Staff Account</h3><p class="hint">Staff cannot self-register. Choose their role and send an OTP to their email.</p></div></div>
+          <form id="userForm"><div class="grid2"><div><label>Full Name</label><input id="newFullName" required /></div><div><label>Email</label><input id="newEmail" type="email" required /></div><div><label>Username</label><input id="newUsername" required /></div><div><label>Temporary Password</label><input id="newPassword" type="password" minlength="6" required /></div></div><label>Staff Role</label><select id="newRole" required><option value="CLAIM_OFFICER">Claim Officer</option><option value="SURVEYOR">Surveyor</option><option value="FINANCE_OFFICER">Finance Officer</option></select><button type="submit">Create Staff Account &amp; Send OTP</button><span id="userMessage" class="message"></span></form>
+        </div>
+        <div class="card"><div class="section-heading"><div><h3>Accounts</h3><p class="hint">Activate or deactivate staff access.</p></div></div><div id="usersList" class="users-list"></div></div>
+      </section>
+
+      <section id="view-password" class="dash-view hidden"><div class="page-heading"><div><span class="eyebrow">ACCOUNT SECURITY</span><h2>Change Password</h2><p>Update the password for your current account.</p></div></div><div class="card form-card password-card"><form id="changePasswordForm"><label for="currentPassword">Current Password</label><input id="currentPassword" type="password" autocomplete="current-password" required /><label for="newPasswordChange">New Password</label><input id="newPasswordChange" type="password" minlength="6" autocomplete="new-password" required /><label for="confirmPasswordChange">Confirm New Password</label><input id="confirmPasswordChange" type="password" minlength="6" autocomplete="new-password" required /><button type="submit">Change Password</button><span id="changePasswordMessage" class="message"></span></form></div></section>
+
+      <section id="view-claim" class="dash-view hidden"><div class="page-heading"><div><span class="eyebrow">CLAIMANT</span><h2>Submit New Claim</h2><p>Provide policy details and one supporting document.</p></div></div><div class="card form-card"><form id="claimForm"><div class="grid2"><div><label>Policy Number</label><input id="policyNumber" required placeholder="POL-5001" /></div><div><label>Claim Amount (₹)</label><input id="amount" type="number" min="1" step="0.01" required placeholder="150000" /></div></div><label>Description</label><textarea id="description" required placeholder="Describe the claim"></textarea><label>Supporting Document</label><input id="document" type="file" required accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" /><button type="submit">Submit Claim</button><span id="submitMessage" class="message"></span></form></div></section>
+
+      <section id="view-claims" class="dash-view hidden"><div class="page-heading"><div><span class="eyebrow">WORKFLOW</span><h2 id="claimsTitle">Claims</h2><p id="claimsHint">Track current state, actions and workflow history.</p></div><button class="secondary" id="refreshBtn">Refresh</button></div><div id="claimsList" class="claims-list"></div></section>
+    </section>
+  </section>
+</main>
+
+<div id="actionModal" class="action-modal hidden" role="dialog" aria-modal="true" aria-labelledby="actionModalTitle"><div class="action-modal-card"><div class="modal-icon">!</div><div class="modal-content"><span class="eyebrow">CONFIRM ACTION</span><h3 id="actionModalTitle">Confirm</h3><p id="actionModalClaim" class="modal-claim"></p><p id="actionModalMessage" class="modal-message"></p>
+  <div id="settlementFields" class="settlement-fields hidden"><div class="settlement-heading">Payment Settlement</div><div class="settlement-grid"><div><label for="paymentMethod">Payment Method</label><select id="paymentMethod"><option value="">Select payment method</option><option value="BANK_TRANSFER">Bank Transfer</option><option value="UPI">UPI</option><option value="CHEQUE">Cheque</option></select></div><div><label for="settlementAmount">Settlement Amount (₹)</label><input id="settlementAmount" type="number" min="0.01" step="0.01" /></div></div><label for="transactionReference">Transaction / Reference Number</label><input id="transactionReference" maxlength="120" placeholder="Enter transaction or reference number" /><p class="settlement-hint">The settlement date and finance officer are recorded automatically in the claim history.</p></div>
+  <label for="actionModalNote">Optional note</label><textarea id="actionModalNote" rows="3" placeholder="Add a note for the audit history (optional)"></textarea><div class="modal-actions"><button type="button" class="secondary" id="actionCancelBtn">Cancel</button><button type="button" class="modal-confirm primary" id="actionConfirmBtn">Confirm</button></div></div></div></div>
+<div id="toast" class="toast hidden"></div>
+<script src="script.js?v=20260923"></script>
+</body>
+</html>

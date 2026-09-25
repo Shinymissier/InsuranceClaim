@@ -1,4 +1,4 @@
-const API = "http://localhost:8080/api";
+const API = window.location.protocol === "file:" ? "http://localhost:8080/api" : `${window.location.origin}/api`;
 let currentUser = null;
 let eventSource = null;
 const $ = (id) => document.getElementById(id);
