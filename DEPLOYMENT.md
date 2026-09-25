@@ -102,17 +102,17 @@ git push origin main
 | Variable | Value / Description |
 |---|---|
 | `PORT` | `8080` (pre-filled) |
-| `SUPABASE_DB_URL` | Your Supabase JDBC URL (e.g., `jdbc:postgresql://...`) |
-| `SUPABASE_DB_USERNAME` | `postgres` |
-| `SUPABASE_DB_PASSWORD` | Your Supabase database password |
+| `SUPABASE_DB_URL` | `jdbc:postgresql://aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres?sslmode=require` |
+| `SUPABASE_DB_USERNAME` | `postgres.evsmqptouoayfdhceagy` |
+| `SUPABASE_DB_PASSWORD` | `#Shiny@2006$` |
 | `MAIL_HOST` | `smtp.gmail.com` |
 | `MAIL_PORT` | `587` |
-| `MAIL_USERNAME` | Your Gmail address |
-| `MAIL_PASSWORD` | Your 16-character Gmail App Password |
+| `MAIL_USERNAME` | `insuranceclmvrfctn@gmail.com` |
+| `MAIL_PASSWORD` | `diytuypengdfifmf` |
 | `BOOTSTRAP_ADMIN_USERNAME` | `admin` |
-| `BOOTSTRAP_ADMIN_PASSWORD` | Choose a strong password for the admin account |
-| `BOOTSTRAP_ADMIN_NAME` | `System Administrator` |
-| `BOOTSTRAP_ADMIN_EMAIL` | Your admin email (e.g., `shinymissier@gmail.com`) |
+| `BOOTSTRAP_ADMIN_PASSWORD` | `Admin@123` |
+| `BOOTSTRAP_ADMIN_NAME` | `Admin` |
+| `BOOTSTRAP_ADMIN_EMAIL` | `insuranceclmvrfctn@gmail.com` |
 
 5. Click **Apply**.
 6. Render will automatically build the multi-stage Docker container and deploy the service.

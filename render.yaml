@@ -10,9 +10,9 @@ services:
       - key: PORT
         value: 8080
       - key: SUPABASE_DB_URL
-        sync: false
+        value: jdbc:postgresql://aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres?sslmode=require
       - key: SUPABASE_DB_USERNAME
-        value: postgres
+        value: postgres.evsmqptouoayfdhceagy
       - key: SUPABASE_DB_PASSWORD
         sync: false
       - key: MAIL_HOST
@@ -20,7 +20,7 @@ services:
       - key: MAIL_PORT
         value: 587
       - key: MAIL_USERNAME
-        sync: false
+        value: insuranceclmvrfctn@gmail.com
       - key: MAIL_PASSWORD
         sync: false
       - key: BOOTSTRAP_ADMIN_USERNAME
@@ -28,6 +28,6 @@ services:
       - key: BOOTSTRAP_ADMIN_PASSWORD
         sync: false
       - key: BOOTSTRAP_ADMIN_NAME
-        value: System Administrator
+        value: Admin
       - key: BOOTSTRAP_ADMIN_EMAIL
-        sync: false
+        value: insuranceclmvrfctn@gmail.com
