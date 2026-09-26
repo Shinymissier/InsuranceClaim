@@ -77,10 +77,32 @@
         <div class="top-actions"><span id="roleBadge" class="role-badge">USER</span><button class="secondary mobile-logout" id="mobileLogoutBtn">Logout</button></div>
       </div>
 
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-head"><span>Total Claims</span><span class="kpi-icon">Σ</span></div>
+          <div class="kpi-value" id="statTotal">0</div>
+          <div class="kpi-sub">Registered claims</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-head"><span>Under Review</span><span class="kpi-icon kpi-amber">⏳</span></div>
+          <div class="kpi-value text-amber" id="statPending">0</div>
+          <div class="kpi-sub">Verification &amp; Survey</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-head"><span>Approved</span><span class="kpi-icon kpi-blue">✓</span></div>
+          <div class="kpi-value text-blue" id="statApproved">0</div>
+          <div class="kpi-sub">Ready for settlement</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-head"><span>Settled Amount</span><span class="kpi-icon kpi-emerald">₹</span></div>
+          <div class="kpi-value text-emerald" id="statSettled">₹0</div>
+          <div class="kpi-sub">Disbursed to claimants</div>
+        </div>
+      </div>
+
       <section id="view-overview" class="dash-view">
         <div class="dashboard-welcome">
           <div><span class="eyebrow">WELCOME BACK</span><h3 id="welcomeTitle">Welcome</h3><p id="welcomeText">Your claim journey is ready.</p></div>
-          <div class="welcome-art" aria-hidden="true"><span class="art-shield">✓</span><span class="art-orbit orbit-one"></span><span class="art-orbit orbit-two"></span></div>
         </div>
 
         <div class="overview-focus">

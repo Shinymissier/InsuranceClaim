@@ -364,7 +364,17 @@ function formatRelative(value) {
 }
 
 function updateStats(claims) {
-  ["statTotal", "statPending", "statApproved", "statSettled"].forEach(id => { if ($(id)) $(id).textContent = "0"; });
+  if (!Array.isArray(claims)) claims = [];
+  if ($("statTotal")) $("statTotal").textContent = claims.length;
+  if ($("statPending")) $("statPending").textContent = claims.filter(c => ["SUBMITTED", "VERIFIED", "SURVEY_COMPLETED", "FRAUD_REVIEW"].includes(c.status)).length;
+  if ($("statApproved")) $("statApproved").textContent = claims.filter(c => c.status === "APPROVED").length;
+  if ($("statSettled")) {
+    const settledClaims = claims.filter(c => c.status === "SETTLED");
+    const totalAmount = settledClaims.reduce((sum, c) => sum + Number(c.settlementAmount ?? c.amount ?? 0), 0);
+    $("statSettled").textContent = totalAmount >= 100000 
+      ? `₹${(totalAmount / 100000).toFixed(1)}L` 
+      : `₹${totalAmount.toLocaleString("en-IN")}`;
+  }
 }
 
 function workflowSteps(status) {
