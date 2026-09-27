@@ -1,6 +1,16 @@
-const configuredApi = (window.INSURANCE_API_BASE_URL || localStorage.getItem("insurance_api_base_url") || "").trim();
-const localApi = "http://localhost:8080/api";
-const API = (configuredApi || localApi).replace(/\/+$/, "");
+// API configuration
+// Frontend and Spring Boot are deployed together, so use the same origin.
+// This also prevents an old localhost URL in localStorage from breaking deployment.
+const configuredApi = (window.INSURANCE_API_BASE_URL || "").trim();
+const localApi = "/api";
+
+// Ignore localhost API URLs in the deployed browser.
+const isLocalhostApi =
+    /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/api\/?$/i.test(configuredApi);
+
+const API =
+    ((configuredApi && !isLocalhostApi) ? configuredApi : localApi)
+        .replace(/\/+$/, "");
 let currentUser = null;
 let eventSource = null;
 let activeClaimFilter = "ALL";
