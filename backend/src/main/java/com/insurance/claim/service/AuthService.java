@@ -1,10 +1,10 @@
 package com.insurance.claim.service;
 
-import com.insurance.claim.dto.LoginResponse;
 import com.insurance.claim.dto.ChangePasswordRequest;
 import com.insurance.claim.dto.ForgotPasswordRequest;
-import com.insurance.claim.dto.ResetPasswordRequest;
+import com.insurance.claim.dto.LoginResponse;
 import com.insurance.claim.dto.OtpRequest;
+import com.insurance.claim.dto.ResetPasswordRequest;
 import com.insurance.claim.dto.UserCreateRequest;
 import com.insurance.claim.model.Role;
 import com.insurance.claim.model.UserAccount;
@@ -18,187 +18,360 @@ import java.util.UUID;
 
 @Service
 public class AuthService {
+
     private final UserAccountRepository users;
     private final PasswordEncoder encoder;
     private final EmailOtpService otpService;
 
-    public AuthService(UserAccountRepository users, PasswordEncoder encoder, EmailOtpService otpService) {
+    public AuthService(
+            UserAccountRepository users,
+            PasswordEncoder encoder,
+            EmailOtpService otpService) {
+
         this.users = users;
         this.encoder = encoder;
         this.otpService = otpService;
     }
 
     public LoginResponse login(String username, String password) {
-<<<<<<< HEAD
+
         UserAccount user = users.findByUsername(normalizeUsername(username))
-=======
-        UserAccount user = users.findByUsername(username == null ? "" : username.trim())
->>>>>>> 2e9d4774e4564c1303f0b69bc94ca06816c250b0
-                .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
-        if (!encoder.matches(password == null ? "" : password, user.getPassword())) {
-            throw new IllegalArgumentException("Invalid username or password");
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Invalid username or password"));
+
+        if (!encoder.matches(
+                password == null ? "" : password,
+                user.getPassword())) {
+
+            throw new IllegalArgumentException(
+                    "Invalid username or password");
         }
-        if (!user.isEmailVerified()) throw new IllegalArgumentException("Email is not verified. Complete OTP verification first.");
-        if (!user.isEnabled()) throw new IllegalArgumentException("This account is inactive. Contact the administrator.");
+
+        if (!user.isEmailVerified()) {
+            throw new IllegalArgumentException(
+                    "Email is not verified. Complete OTP verification first.");
+        }
+
+        if (!user.isEnabled()) {
+            throw new IllegalArgumentException(
+                    "This account is inactive. Contact the administrator.");
+        }
+
         user.setAuthToken(UUID.randomUUID().toString());
         users.save(user);
-        return new LoginResponse(user.getUsername(), user.getFullName(), user.getRole().name(), user.getEmail(), user.getAuthToken());
+
+        return new LoginResponse(
+                user.getUsername(),
+                user.getFullName(),
+                user.getRole().name(),
+                user.getEmail(),
+                user.getAuthToken()
+        );
     }
 
     public UserAccount requireToken(String token) {
-        if (token == null || token.isBlank()) throw new IllegalArgumentException("Authentication token is required");
-        UserAccount user = users.findByAuthToken(token).orElseThrow(() -> new IllegalArgumentException("Invalid authentication token"));
-        if (!user.isEnabled() || !user.isEmailVerified()) throw new IllegalArgumentException("Account is not active or email is not verified");
+
+        if (token == null || token.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Authentication token is required");
+        }
+
+        UserAccount user = users.findByAuthToken(token)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Invalid authentication token"));
+
+        if (!user.isEnabled() || !user.isEmailVerified()) {
+            throw new IllegalArgumentException(
+                    "Account is not active or email is not verified");
+        }
+
         return user;
     }
 
     public UserAccount requireUser(String username) {
-<<<<<<< HEAD
-        UserAccount user = users.findByUsername(normalizeUsername(username))
-=======
-        UserAccount user = users.findByUsername(username)
->>>>>>> 2e9d4774e4564c1303f0b69bc94ca06816c250b0
-                .orElseThrow(() -> new IllegalArgumentException("Unknown user: " + username));
-        if (!user.isEnabled() || !user.isEmailVerified()) throw new IllegalArgumentException("Account is not active or email is not verified");
+
+        UserAccount user = users.findByUsername(
+                        normalizeUsername(username))
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Unknown user: " + username));
+
+        if (!user.isEnabled() || !user.isEmailVerified()) {
+            throw new IllegalArgumentException(
+                    "Account is not active or email is not verified");
+        }
+
         return user;
     }
 
     public UserAccount requireAdmin(String username) {
+
         UserAccount user = requireUser(username);
-        if (user.getRole() != Role.ADMIN) throw new IllegalArgumentException("Administrator permission required");
+
+        if (user.getRole() != Role.ADMIN) {
+            throw new IllegalArgumentException(
+                    "Administrator permission required");
+        }
+
         return user;
     }
 
-<<<<<<< HEAD
     /**
-     * Creates a claimant account and triggers OTP delivery.
-     * @return a two-element array: [0] = saved UserAccount, [1] = OTP string (non-null only in dev/no-SMTP mode)
+     * Creates a claimant account and sends an OTP.
+     *
+     * The returned array contains:
+     * [0] = saved UserAccount
+     * [1] = OTP string when the application is running
+     *       in a mode where the OTP service returns it.
      */
     @Transactional
     public Object[] createClaimant(UserCreateRequest request) {
-        if (request == null) throw new IllegalArgumentException("Registration details are required");
-        validateNewUser(request);
-        String normalizedUsername = normalizeUsername(request.getUsername());
-        if (users.existsByUsername(normalizedUsername)) throw new IllegalArgumentException("Username already exists");
-        if (users.existsByEmail(request.getEmail().trim())) throw new IllegalArgumentException("Email already exists");
 
-        UserAccount user = new UserAccount(normalizedUsername, encoder.encode(request.getPassword()),
-                request.getFullName().trim(), request.getEmail().trim(), Role.CLAIMANT, false, false);
+        if (request == null) {
+            throw new IllegalArgumentException(
+                    "Registration details are required");
+        }
+
+        validateNewUser(request);
+
+        String normalizedUsername =
+                normalizeUsername(request.getUsername());
+
+        if (users.existsByUsername(normalizedUsername)) {
+            throw new IllegalArgumentException(
+                    "Username already exists");
+        }
+
+        if (users.existsByEmail(request.getEmail().trim())) {
+            throw new IllegalArgumentException(
+                    "Email already exists");
+        }
+
+        UserAccount user = new UserAccount(
+                normalizedUsername,
+                encoder.encode(request.getPassword()),
+                request.getFullName().trim(),
+                request.getEmail().trim(),
+                Role.CLAIMANT,
+                false,
+                false
+        );
+
         UserAccount saved = users.save(user);
+
         String otp = otpService.sendOtp(saved);
-        users.save(saved); // persist otp hash written by sendOtp
-        return new Object[]{saved, otp};
-=======
-    @Transactional
-    public UserAccount createClaimant(UserCreateRequest request) {
-        if (request == null) throw new IllegalArgumentException("Registration details are required");
-        validateNewUser(request);
-        if (users.existsByUsername(request.getUsername().trim())) throw new IllegalArgumentException("Username already exists");
-        if (users.existsByEmail(request.getEmail().trim())) throw new IllegalArgumentException("Email already exists");
 
-        UserAccount user = new UserAccount(request.getUsername().trim(), encoder.encode(request.getPassword()),
-                request.getFullName().trim(), request.getEmail().trim(), Role.CLAIMANT, false, false);
-        UserAccount saved = users.save(user);
-        otpService.sendOtp(saved);
-        return saved;
->>>>>>> 2e9d4774e4564c1303f0b69bc94ca06816c250b0
+        users.save(saved);
+
+        return new Object[]{saved, otp};
     }
 
+    /**
+     * Creates a staff account.
+     *
+     * Only an administrator can create:
+     * - CLAIM_OFFICER
+     * - SURVEYOR
+     * - FINANCE_OFFICER
+     */
     @Transactional
-    public UserAccount createUser(String adminUsername, UserCreateRequest request) {
-        requireAdmin(adminUsername);
-        if (request.getFullName() == null || request.getFullName().isBlank()) throw new IllegalArgumentException("Full name is required");
-        if (request.getEmail() == null || !request.getEmail().contains("@")) throw new IllegalArgumentException("Valid email is required");
-        if (request.getUsername() == null || request.getUsername().isBlank()) throw new IllegalArgumentException("Username is required");
-        if (request.getPassword() == null || request.getPassword().length() < 6) throw new IllegalArgumentException("Password must contain at least 6 characters");
-        if (request.getRole() == null) throw new IllegalArgumentException("Staff role is required");
-        if (request.getRole() == Role.CLAIMANT || request.getRole() == Role.ADMIN) throw new IllegalArgumentException("Only staff roles can be created here");
-<<<<<<< HEAD
-        String normalizedUsername = normalizeUsername(request.getUsername());
-        if (users.existsByUsername(normalizedUsername)) throw new IllegalArgumentException("Username already exists");
-        if (users.existsByEmail(request.getEmail().trim())) throw new IllegalArgumentException("Email already exists");
+    public UserAccount createUser(
+            String adminUsername,
+            UserCreateRequest request) {
 
-        UserAccount user = new UserAccount(normalizedUsername, encoder.encode(request.getPassword()),
-                request.getFullName().trim(), request.getEmail().trim(), request.getRole(), false, false);
+        requireAdmin(adminUsername);
+
+        if (request == null) {
+            throw new IllegalArgumentException(
+                    "User details are required");
+        }
+
+        if (request.getFullName() == null
+                || request.getFullName().isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Full name is required");
+        }
+
+        if (request.getEmail() == null
+                || !request.getEmail().contains("@")) {
+
+            throw new IllegalArgumentException(
+                    "Valid email is required");
+        }
+
+        if (request.getUsername() == null
+                || request.getUsername().isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Username is required");
+        }
+
+        if (request.getPassword() == null
+                || request.getPassword().length() < 6) {
+
+            throw new IllegalArgumentException(
+                    "Password must contain at least 6 characters");
+        }
+
+        if (request.getRole() == null) {
+            throw new IllegalArgumentException(
+                    "Staff role is required");
+        }
+
+        if (request.getRole() == Role.CLAIMANT
+                || request.getRole() == Role.ADMIN) {
+
+            throw new IllegalArgumentException(
+                    "Only staff roles can be created here");
+        }
+
+        String normalizedUsername =
+                normalizeUsername(request.getUsername());
+
+        if (users.existsByUsername(normalizedUsername)) {
+            throw new IllegalArgumentException(
+                    "Username already exists");
+        }
+
+        if (users.existsByEmail(request.getEmail().trim())) {
+            throw new IllegalArgumentException(
+                    "Email already exists");
+        }
+
+        UserAccount user = new UserAccount(
+                normalizedUsername,
+                encoder.encode(request.getPassword()),
+                request.getFullName().trim(),
+                request.getEmail().trim(),
+                request.getRole(),
+                false,
+                false
+        );
+
         UserAccount saved = users.save(user);
+
         otpService.sendOtp(saved);
+
         users.save(saved);
+
         return saved;
     }
 
     private String normalizeUsername(String username) {
-        if (username == null) return "";
+
+        if (username == null) {
+            return "";
+        }
+
         return username.trim().toLowerCase(java.util.Locale.ROOT);
     }
 
-=======
-        if (users.existsByUsername(request.getUsername().trim())) throw new IllegalArgumentException("Username already exists");
-        if (users.existsByEmail(request.getEmail().trim())) throw new IllegalArgumentException("Email already exists");
-
-        UserAccount user = new UserAccount(request.getUsername().trim(), encoder.encode(request.getPassword()),
-                request.getFullName().trim(), request.getEmail().trim(), request.getRole(), false, false);
-        UserAccount saved = users.save(user);
-        otpService.sendOtp(saved);
-        return saved;
-    }
-
->>>>>>> 2e9d4774e4564c1303f0b69bc94ca06816c250b0
     private void validateNewUser(UserCreateRequest request) {
-        if (request.getFullName() == null || request.getFullName().isBlank()) throw new IllegalArgumentException("Full name is required");
-        if (request.getEmail() == null || !request.getEmail().contains("@")) throw new IllegalArgumentException("Valid email is required");
-        if (request.getUsername() == null || request.getUsername().isBlank()) throw new IllegalArgumentException("Username is required");
-        if (request.getPassword() == null || request.getPassword().length() < 6) throw new IllegalArgumentException("Password must contain at least 6 characters");
+
+        if (request.getFullName() == null
+                || request.getFullName().isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Full name is required");
+        }
+
+        if (request.getEmail() == null
+                || !request.getEmail().contains("@")) {
+
+            throw new IllegalArgumentException(
+                    "Valid email is required");
+        }
+
+        if (request.getUsername() == null
+                || request.getUsername().isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Username is required");
+        }
+
+        if (request.getPassword() == null
+                || request.getPassword().length() < 6) {
+
+            throw new IllegalArgumentException(
+                    "Password must contain at least 6 characters");
+        }
     }
 
     @Transactional
     public void verifyOtp(OtpRequest request) {
-<<<<<<< HEAD
-        UserAccount user = users.findByUsername(normalizeUsername(request.getUsername()))
-=======
-        UserAccount user = users.findByUsername(request.getUsername() == null ? "" : request.getUsername().trim())
->>>>>>> 2e9d4774e4564c1303f0b69bc94ca06816c250b0
-                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
-        if (user.isEmailVerified()) return;
-        if (!otpService.verify(user, request.getOtp())) {
-            users.save(user);
-            throw new IllegalArgumentException("Invalid or expired OTP");
+
+        if (request == null) {
+            throw new IllegalArgumentException(
+                    "OTP verification details are required");
         }
+
+        UserAccount user = users.findByUsername(
+                        normalizeUsername(request.getUsername()))
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Account not found"));
+
+        if (user.isEmailVerified()) {
+            return;
+        }
+
+        if (!otpService.verify(user, request.getOtp())) {
+
+            users.save(user);
+
+            throw new IllegalArgumentException(
+                    "Invalid or expired OTP");
+        }
+
         user.setEmailVerified(true);
         user.setEnabled(true);
         user.setOtpHash(null);
         user.setOtpExpiry(null);
         user.setOtpAttempts(0);
+
         users.save(user);
     }
 
     @Transactional
-<<<<<<< HEAD
     public String resendOtp(String username) {
-        UserAccount user = users.findByUsername(normalizeUsername(username))
-                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
-        if (user.isEmailVerified()) throw new IllegalArgumentException("Email is already verified");
-        String otp = otpService.sendOtp(user);
-        users.save(user);
-        return otp;
-=======
-    public void resendOtp(String username) {
-        UserAccount user = users.findByUsername(username == null ? "" : username.trim())
-                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
-        if (user.isEmailVerified()) throw new IllegalArgumentException("Email is already verified");
-        otpService.sendOtp(user);
-        users.save(user);
->>>>>>> 2e9d4774e4564c1303f0b69bc94ca06816c250b0
-    }
 
+        UserAccount user = users.findByUsername(
+                        normalizeUsername(username))
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Account not found"));
+
+        if (user.isEmailVerified()) {
+            throw new IllegalArgumentException(
+                    "Email is already verified");
+        }
+
+        String otp = otpService.sendOtp(user);
+
+        users.save(user);
+
+        return otp;
+    }
 
     @Transactional
     public void forgotPassword(ForgotPasswordRequest request) {
-        if (request == null || request.getEmail() == null || request.getEmail().isBlank()) {
-            throw new IllegalArgumentException("Email is required");
+
+        if (request == null
+                || request.getEmail() == null
+                || request.getEmail().isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Email is required");
         }
+
         String email = request.getEmail().trim();
+
         users.findByEmail(email).ifPresent(user -> {
+
             if (user.isEmailVerified() && user.isEnabled()) {
+
                 otpService.sendPasswordResetOtp(user);
                 users.save(user);
             }
@@ -207,65 +380,151 @@ public class AuthService {
 
     @Transactional
     public void resetPassword(ResetPasswordRequest request) {
-        if (request == null) throw new IllegalArgumentException("Password reset details are required");
-        if (request.getEmail() == null || request.getEmail().isBlank()) throw new IllegalArgumentException("Email is required");
-        if (request.getOtp() == null || !request.getOtp().matches("\\d{6}")) throw new IllegalArgumentException("Enter a valid 6-digit OTP");
-        validatePassword(request.getNewPassword());
 
-        UserAccount user = users.findByEmail(request.getEmail().trim())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid or expired password reset request"));
-        if (!user.isEmailVerified() || !user.isEnabled()) throw new IllegalArgumentException("Account is not active");
-        if (!otpService.verifyPasswordResetOtp(user, request.getOtp())) {
-            users.save(user);
-            throw new IllegalArgumentException("Invalid or expired password reset OTP");
+        if (request == null) {
+            throw new IllegalArgumentException(
+                    "Password reset details are required");
         }
 
-        user.setPassword(encoder.encode(request.getNewPassword()));
+        if (request.getEmail() == null
+                || request.getEmail().isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Email is required");
+        }
+
+        if (request.getOtp() == null
+                || !request.getOtp().matches("\\d{6}")) {
+
+            throw new IllegalArgumentException(
+                    "Enter a valid 6-digit OTP");
+        }
+
+        validatePassword(request.getNewPassword());
+
+        UserAccount user = users.findByEmail(
+                        request.getEmail().trim())
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Invalid or expired password reset request"));
+
+        if (!user.isEmailVerified() || !user.isEnabled()) {
+            throw new IllegalArgumentException(
+                    "Account is not active");
+        }
+
+        if (!otpService.verifyPasswordResetOtp(
+                user,
+                request.getOtp())) {
+
+            users.save(user);
+
+            throw new IllegalArgumentException(
+                    "Invalid or expired password reset OTP");
+        }
+
+        user.setPassword(
+                encoder.encode(request.getNewPassword()));
+
         user.setPasswordResetOtpHash(null);
         user.setPasswordResetOtpExpiry(null);
         user.setPasswordResetOtpAttempts(0);
+
+        // Invalidate existing login session
         user.setAuthToken(null);
+
         users.save(user);
     }
 
     @Transactional
-    public void changePassword(String token, ChangePasswordRequest request) {
+    public void changePassword(
+            String token,
+            ChangePasswordRequest request) {
+
         UserAccount user = requireToken(token);
-        if (request == null) throw new IllegalArgumentException("Password change details are required");
-        if (!encoder.matches(request.getCurrentPassword() == null ? "" : request.getCurrentPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("Current password is incorrect");
+
+        if (request == null) {
+            throw new IllegalArgumentException(
+                    "Password change details are required");
         }
+
+        if (!encoder.matches(
+                request.getCurrentPassword() == null
+                        ? ""
+                        : request.getCurrentPassword(),
+                user.getPassword())) {
+
+            throw new IllegalArgumentException(
+                    "Current password is incorrect");
+        }
+
         validatePassword(request.getNewPassword());
-        if (encoder.matches(request.getNewPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("New password must be different from the current password");
+
+        if (encoder.matches(
+                request.getNewPassword(),
+                user.getPassword())) {
+
+            throw new IllegalArgumentException(
+                    "New password must be different from the current password");
         }
-        user.setPassword(encoder.encode(request.getNewPassword()));
+
+        user.setPassword(
+                encoder.encode(request.getNewPassword()));
+
+        // Force login again after password change
         user.setAuthToken(null);
+
         users.save(user);
     }
 
     private void validatePassword(String password) {
+
         if (password == null || password.length() < 6) {
-            throw new IllegalArgumentException("Password must contain at least 6 characters");
+
+            throw new IllegalArgumentException(
+                    "Password must contain at least 6 characters");
         }
     }
 
     @Transactional
     public void logout(String token) {
-        if (token == null || token.isBlank()) return;
-        users.findByAuthToken(token).ifPresent(user -> { user.setAuthToken(null); users.save(user); });
+
+        if (token == null || token.isBlank()) {
+            return;
+        }
+
+        users.findByAuthToken(token).ifPresent(user -> {
+            user.setAuthToken(null);
+            users.save(user);
+        });
     }
 
-    public void setEnabled(String adminUsername, Long id, boolean enabled) {
+    public void setEnabled(
+            String adminUsername,
+            Long id,
+            boolean enabled) {
+
         requireAdmin(adminUsername);
-        UserAccount user = users.findById(id).orElseThrow(() -> new IllegalArgumentException("Account not found"));
-        if (user.getRole() == Role.ADMIN && !enabled) throw new IllegalArgumentException("Admin accounts cannot be disabled from this screen");
+
+        UserAccount user = users.findById(id)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Account not found"));
+
+        if (user.getRole() == Role.ADMIN && !enabled) {
+            throw new IllegalArgumentException(
+                    "Admin accounts cannot be disabled from this screen");
+        }
+
         user.setEnabled(enabled && user.isEmailVerified());
+
         users.save(user);
     }
 
     public List<UserAccount> users(String adminUsername) {
+
         requireAdmin(adminUsername);
+
         return users.findAllByOrderByIdDesc();
     }
 }
