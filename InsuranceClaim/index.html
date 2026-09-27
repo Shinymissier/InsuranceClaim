@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark light" />
+  <title>Insurance Claim Verification System | Modern Real-Time Claim Operations</title>
+  
+  <!-- Modern Typography: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="style.css?v=20260927" />
+
+  <!-- Theme initialization to prevent Flash of Unstyled Content (FOUC) -->
+  <script>
+    (function () {
+      try {
+        const savedTheme = localStorage.getItem("claim_theme");
+        const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const activeTheme = savedTheme ? savedTheme : (systemPrefersDark ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", activeTheme);
+        const metaTheme = document.querySelector('meta[name="color-scheme"]');
+        if (metaTheme) metaTheme.content = activeTheme === "dark" ? "dark light" : "light dark";
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+
+<!-- Ambient Background Glow Accents -->
+<div class="ambient-glow glow-teal" aria-hidden="true"></div>
+<div class="ambient-glow glow-cyan" aria-hidden="true"></div>
+
+<!-- Global Top Header -->
+<header class="app-header">
+  <div class="header-inner">
+    <div class="brand-wrap">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          <path d="m9 12 2 2 4-4"></path>
+        </svg>
+      </div>
+      <div>
+        <div class="brand">Insurance<span class="brand-accent">Claim</span></div>
+        <small class="brand-sub">Verification &amp; Settlement System</small>
+      </div>
+    </div>
+    
+    <div class="header-controls">
+      <div id="liveBadge" class="live-badge hidden" title="Realtime SSE Synchronization Active">
+        <span class="pulse-dot"></span>
+        <span class="live-text">LIVE SYNC</span>
+      </div>
+
+      <button id="themeToggleBtn" class="theme-toggle-btn" type="button" aria-label="Toggle dark/light mode" title="Toggle theme">
+        <span class="theme-icon icon-sun">☀️</span>
+        <span class="theme-icon icon-moon">🌙</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="app-main">
+  <!-- ================= AUTHENTICATION VIEW ================= -->
+  <section id="authView" class="auth-shell">
+    <div class="auth-intro">
+      <div class="intro-badge">
+        <span class="badge-dot"></span>
+        <span>SECURE REALTIME ARCHITECTURE</span>
+      </div>
+      <h1>Intelligent claim verification, simplified.</h1>
+      <p>A unified digital workspace for claimants, survey officers, claims managers, and finance officers to track, verify, and settle claims with complete transparency.</p>
+      
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+          </div>
+          <div>
+            <b>OTP-Protected Verification</b>
+            <small>Email-verified claimant onboarding and role authorization.</small>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 12 2 2 4-4"/></svg>
+          </div>
+          <div>
+            <b>Strict Role-Based Workflows</b>
+            <small>Isolated actions for Officers, Surveyors, and Finance personnel.</small>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+          <div>
+            <b>Instant SSE Live Updates</b>
+            <small>Realtime status broadcasts across claimant &amp; officer consoles.</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="auth-stats-preview">
+        <div class="preview-stat">
+          <strong>100%</strong>
+          <span>Audit Logged</span>
+        </div>
+        <div class="preview-stat-divider"></div>
+        <div class="preview-stat">
+          <strong>&lt; 24h</strong>
+          <span>Target Turnaround</span>
+        </div>
+        <div class="preview-stat-divider"></div>
+        <div class="preview-stat">
+          <strong>Direct ₹</strong>
+          <span>Fast Settlement</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="auth-card">
+      <div class="auth-tabs" role="tablist">
+        <button class="tab active" data-view="loginPanel" role="tab" aria-selected="true">Sign In</button>
+        <button class="tab" data-view="verifyPanel" role="tab" aria-selected="false">Verify OTP</button>
+        <button class="tab" data-view="registerPanel" role="tab" aria-selected="false">New Claimant</button>
+      </div>
+
+      <!-- Login Panel -->
+      <section id="loginPanel" class="auth-panel" role="tabpanel">
+        <div class="panel-header">
+          <h2>Welcome Back</h2>
+          <p class="hint">Enter your credentials to access your console.</p>
+        </div>
+        <form id="loginForm" autocomplete="on">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <div class="input-wrap">
+              <span class="input-icon">👤</span>
+              <input id="username" placeholder="Enter username" autocomplete="username" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input id="password" type="password" placeholder="Enter password" autocomplete="current-password" required />
+            </div>
+          </div>
+          <button class="btn btn-primary wide" type="submit">
+            <span>Sign In to Dashboard</span>
+            <span class="btn-arrow">→</span>
+          </button>
+        </form>
+        <p id="loginMessage" class="message" role="status"></p>
+        <div class="auth-links">
+          <button type="button" class="link-button" data-view="forgotPanel">Forgot password?</button>
+        </div>
+        <div class="auth-note">
+          New claimant? <button type="button" class="link-button" data-view="registerPanel">Create an account</button>
+        </div>
+      </section>
+
+      <!-- Forgot Password Panel -->
+      <section id="forgotPanel" class="auth-panel hidden" role="tabpanel">
+        <div class="panel-header">
+          <h2>Forgot Password</h2>
+          <p class="hint">Enter your registered email and we will dispatch a 6-digit reset OTP.</p>
+        </div>
+        <form id="forgotForm">
+          <div class="form-group">
+            <label for="forgotEmail">Email Address</label>
+            <div class="input-wrap">
+              <span class="input-icon">✉️</span>
+              <input id="forgotEmail" type="email" placeholder="name@example.com" autocomplete="email" required />
+            </div>
+          </div>
+          <button class="btn btn-primary wide" type="submit">
+            <span>Send Reset OTP</span>
+            <span class="btn-arrow">→</span>
+          </button>
+        </form>
+        <p id="forgotMessage" class="message" role="status"></p>
+        <div class="auth-links">
+          <button type="button" class="link-button" data-view="resetPasswordPanel">I already have an OTP</button>
+          <span class="link-sep">·</span>
+          <button type="button" class="link-button" data-view="loginPanel">Back to Login</button>
+        </div>
+      </section>
+
+      <!-- Reset Password Panel -->
+      <section id="resetPasswordPanel" class="auth-panel hidden" role="tabpanel">
+        <div class="panel-header">
+          <h2>Set New Password</h2>
+          <p class="hint">Enter the OTP received on your email and choose a strong password.</p>
+        </div>
+        <form id="resetPasswordForm">
+          <div class="form-group">
+            <label for="resetEmail">Email Address</label>
+            <div class="input-wrap">
+              <span class="input-icon">✉️</span>
+              <input id="resetEmail" type="email" autocomplete="email" placeholder="name@example.com" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="resetOtp">6-Digit OTP</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔑</span>
+              <input id="resetOtp" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="123456" class="mono-input" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="resetNewPassword">New Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input id="resetNewPassword" type="password" minlength="6" autocomplete="new-password" placeholder="Min. 6 characters" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="resetConfirmPassword">Confirm New Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input id="resetConfirmPassword" type="password" minlength="6" autocomplete="new-password" placeholder="Repeat password" required />
+            </div>
+          </div>
+          <button class="btn btn-primary wide" type="submit">
+            <span>Reset Password</span>
+            <span class="btn-arrow">✓</span>
+          </button>
+        </form>
+        <p id="resetMessage" class="message" role="status"></p>
+        <div class="auth-links">
+          <button type="button" class="link-button" data-view="forgotPanel">Request another OTP</button>
+          <span class="link-sep">·</span>
+          <button type="button" class="link-button" data-view="loginPanel">Back to Login</button>
+        </div>
+      </section>
+
+      <!-- OTP Verification Panel -->
+      <section id="verifyPanel" class="auth-panel hidden" role="tabpanel">
+        <div class="panel-header">
+          <h2>Verify Account Email</h2>
+          <p class="hint">Enter the 6-digit confirmation code sent to your inbox.</p>
+        </div>
+        <form id="verifyForm">
+          <div class="form-group">
+            <label for="otpUsername">Username</label>
+            <div class="input-wrap">
+              <span class="input-icon">👤</span>
+              <input id="otpUsername" placeholder="Enter your username" autocomplete="username" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="otp">6-Digit OTP</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔑</span>
+              <input id="otp" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="000000" class="mono-input" required />
+            </div>
+          </div>
+          <button class="btn btn-primary wide" type="submit">
+            <span>Verify &amp; Activate</span>
+            <span class="btn-arrow">→</span>
+          </button>
+        </form>
+        <div class="button-row">
+          <button class="btn btn-secondary" id="resendOtpBtn" type="button">Resend Code</button>
+        </div>
+        <p id="otpMessage" class="message" role="status"></p>
+        <div class="auth-links">
+          <button type="button" class="link-button" data-view="loginPanel">Back to Login</button>
+        </div>
+      </section>
+
+      <!-- Claimant Registration Panel -->
+      <section id="registerPanel" class="auth-panel hidden" role="tabpanel">
+        <div class="panel-header">
+          <h2>Create Claimant Account</h2>
+          <p class="hint">Claimants self-register. Staff accounts are provisioned by an Administrator.</p>
+        </div>
+        <form id="registerForm">
+          <div class="form-group">
+            <label for="regFullName">Full Name</label>
+            <div class="input-wrap">
+              <span class="input-icon">🪪</span>
+              <input id="regFullName" placeholder="e.g. John Doe" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="regEmail">Email Address</label>
+            <div class="input-wrap">
+              <span class="input-icon">✉️</span>
+              <input id="regEmail" type="email" placeholder="john@example.com" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="regUsername">Desired Username</label>
+            <div class="input-wrap">
+              <span class="input-icon">👤</span>
+              <input id="regUsername" autocomplete="username" placeholder="johndoe" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="regPassword">Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input id="regPassword" type="password" minlength="6" autocomplete="new-password" placeholder="At least 6 characters" required />
+            </div>
+          </div>
+          <button class="btn btn-primary wide" type="submit">
+            <span>Register &amp; Send Verification OTP</span>
+            <span class="btn-arrow">→</span>
+          </button>
+        </form>
+        <p id="registerMessage" class="message" role="status"></p>
+        <div class="auth-note">
+          Already registered? <button type="button" class="link-button" data-view="loginPanel">Sign in</button>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <!-- ================= DASHBOARD VIEW ================= -->
+  <section id="dashboardView" class="hidden dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-shield">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            <path d="m9 12 2 2 4-4"></path>
+          </svg>
+        </div>
+        <div>
+          <b>Insurance<span class="brand-accent">Claim</span></b>
+          <small>Verification Engine</small>
+        </div>
+      </div>
+
+      <div class="sidebar-profile">
+        <div class="avatar" id="avatarLetter">U</div>
+        <div class="profile-info">
+          <b id="sidebarName">User</b>
+          <span class="sidebar-role-badge" id="sidebarRole">Role</span>
+        </div>
+      </div>
+
+      <nav id="sideNav" class="side-nav" aria-label="Main Navigation"></nav>
+
+      <div class="sidebar-bottom">
+        <button class="logout-side" id="logoutBtn" type="button" title="Sign out of console">
+          <span class="logout-icon">↪</span>
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <section class="dashboard-main">
+      <div class="dashboard-top">
+        <div class="heading-group">
+          <span class="eyebrow">CONSOLE WORKSPACE</span>
+          <h2 id="dashboardHeading">Dashboard</h2>
+          <p id="userInfo" class="user-meta-line"></p>
+        </div>
+        <div class="top-actions">
+          <span id="roleBadge" class="role-badge">USER</span>
+          <button class="btn btn-secondary mobile-logout" id="mobileLogoutBtn" type="button">Logout</button>
+        </div>
+      </div>
+
+      <!-- KPI Metrics Strip -->
+      <div class="kpi-grid">
+        <div class="kpi-card" tabindex="0">
+          <div class="kpi-head">
+            <span>Total Claims</span>
+            <span class="kpi-icon kpi-teal">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </span>
+          </div>
+          <div class="kpi-value" id="statTotal">0</div>
+          <div class="kpi-sub">Registered across portfolio</div>
+        </div>
+
+        <div class="kpi-card" tabindex="0">
+          <div class="kpi-head">
+            <span>Under Review</span>
+            <span class="kpi-icon kpi-amber">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </span>
+          </div>
+          <div class="kpi-value text-amber" id="statPending">0</div>
+          <div class="kpi-sub">Awaiting Officer/Survey action</div>
+        </div>
+
+        <div class="kpi-card" tabindex="0">
+          <div class="kpi-head">
+            <span>Approved</span>
+            <span class="kpi-icon kpi-cyan">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </span>
+          </div>
+          <div class="kpi-value text-cyan" id="statApproved">0</div>
+          <div class="kpi-sub">Ready for settlement payout</div>
+        </div>
+
+        <div class="kpi-card" tabindex="0">
+          <div class="kpi-head">
+            <span>Disbursed Amount</span>
+            <span class="kpi-icon kpi-emerald">₹</span>
+          </div>
+          <div class="kpi-value text-emerald mono-value" id="statSettled">₹0</div>
+          <div class="kpi-sub">Total settled to claimants</div>
+        </div>
+      </div>
+
+      <!-- ================= VIEW: OVERVIEW ================= -->
+      <section id="view-overview" class="dash-view">
+        <div class="dashboard-welcome">
+          <div class="welcome-text-wrap">
+            <span class="eyebrow">WELCOME BACK</span>
+            <h3 id="welcomeTitle">Welcome</h3>
+            <p id="welcomeText">Your claim journey is ready.</p>
+          </div>
+          <div class="welcome-quick-badge">
+            <span class="badge-dot pulse-teal"></span>
+            <span>All systems nominal</span>
+          </div>
+        </div>
+
+        <div class="overview-focus">
+          <article class="current-claim-card">
+            <div class="section-head-line">
+              <div>
+                <span class="eyebrow">HIGHLIGHTED CLAIM</span>
+                <h3 id="currentClaimTitle" class="mono-title">No active claim</h3>
+              </div>
+              <span id="currentClaimStatus" class="status status-muted">—</span>
+            </div>
+
+            <div class="claim-focus-body">
+              <div class="claim-facts">
+                <div class="fact-box">
+                  <span class="fact-label">Policy Number</span>
+                  <strong id="currentPolicy" class="mono-value">—</strong>
+                </div>
+                <div class="fact-box">
+                  <span class="fact-label">Claim Amount</span>
+                  <strong id="currentAmount" class="mono-value fact-highlight">—</strong>
+                </div>
+                <div class="fact-box">
+                  <span class="fact-label">Incident Type</span>
+                  <strong id="currentIncident">—</strong>
+                </div>
+                <button id="currentClaimButton" class="btn btn-primary" type="button">
+                  <span>View Claims</span>
+                  <span class="btn-arrow">→</span>
+                </button>
+              </div>
+
+              <div class="journey-wrap">
+                <div class="journey-header-label">Workflow Progress Pipeline</div>
+                <div id="claimJourney" class="claim-journey"></div>
+                <div class="journey-caption">
+                  <span id="journeyCurrentText">No claim selected</span>
+                  <span id="journeyNextText"></span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <aside class="dashboard-side-card">
+            <div class="side-card-top">
+              <div class="mini-icon">✦</div>
+              <span class="eyebrow">PORTFOLIO ACTIVITY</span>
+            </div>
+            <strong id="glanceCount" class="glance-counter">0 claims</strong>
+            <p id="glanceText">Your latest claim updates will appear here.</p>
+            <div id="recentUpdate" class="recent-update">No recent update.</div>
+          </aside>
+        </div>
+
+        <div class="dashboard-bottom">
+          <div class="panel quick-panel">
+            <div class="panel-head">
+              <div>
+                <h3>Role Fast Actions</h3>
+                <p>One-click shortcuts tailored to your credentials</p>
+              </div>
+            </div>
+            <div id="quickActions" class="quick-grid"></div>
+          </div>
+
+          <div class="panel reassurance-panel">
+            <div class="reassurance-glow"></div>
+            <span class="eyebrow">STANDARDIZED TIMELINE</span>
+            <h3>Simple. Transparent. Auditable.</h3>
+            <p>Every transition is cryptographically logged with actor IDs, timestamps, and settlement audit trails.</p>
+            <div class="tiny-journey">
+              <span>Submit</span><i></i>
+              <span>Verify</span><i></i>
+              <span>Survey</span><i></i>
+              <span>Approve</span><i></i>
+              <span>Settle</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW: USERS (ADMIN ONLY) ================= -->
+      <section id="view-users" class="dash-view hidden">
+        <div class="page-heading">
+          <div>
+            <span class="eyebrow">ADMINISTRATION CONSOLE</span>
+            <h2>Staff Access Control</h2>
+            <p>Provision and govern authorized staff accounts across Claim Officers, Surveyors, and Finance Officers.</p>
+          </div>
+          <button class="btn btn-secondary" id="refreshUsersBtn" type="button">
+            <span>Refresh Staff</span>
+            <span class="btn-icon">↻</span>
+          </button>
+        </div>
+
+        <div class="card form-card">
+          <div class="section-heading">
+            <div>
+              <h3>Provision New Staff Account</h3>
+              <p class="hint">Staff accounts cannot self-register. An activation OTP is sent immediately to the staff member's email.</p>
+            </div>
+          </div>
+          <form id="userForm">
+            <div class="grid2">
+              <div class="form-group">
+                <label for="newFullName">Staff Full Name</label>
+                <div class="input-wrap">
+                  <span class="input-icon">🪪</span>
+                  <input id="newFullName" placeholder="e.g. Ramesh Kumar" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="newEmail">Corporate Email</label>
+                <div class="input-wrap">
+                  <span class="input-icon">✉️</span>
+                  <input id="newEmail" type="email" placeholder="ramesh@insurance.com" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="newUsername">Portal Username</label>
+                <div class="input-wrap">
+                  <span class="input-icon">👤</span>
+                  <input id="newUsername" placeholder="ramesh_officer" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="newPassword">Temporary Password</label>
+                <div class="input-wrap">
+                  <span class="input-icon">🔒</span>
+                  <input id="newPassword" type="password" minlength="6" placeholder="Min 6 characters" required />
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="newRole">Operational Role Assignment</label>
+              <select id="newRole" required>
+                <option value="CLAIM_OFFICER">Claim Officer (Verification &amp; Fraud Review)</option>
+                <option value="SURVEYOR">Surveyor (Loss Assessment &amp; Inspection)</option>
+                <option value="FINANCE_OFFICER">Finance Officer (Settlement &amp; Disbursal)</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" type="submit">
+              <span>Create Staff Account &amp; Send OTP</span>
+              <span class="btn-arrow">→</span>
+            </button>
+            <span id="userMessage" class="message" role="status"></span>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="section-heading">
+            <div>
+              <h3>Authorized Staff Directory</h3>
+              <p class="hint">Active personnel can process assigned steps; deactivated accounts cannot sign in.</p>
+            </div>
+          </div>
+          <div id="usersList" class="users-list"></div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW: CHANGE PASSWORD ================= -->
+      <section id="view-password" class="dash-view hidden">
+        <div class="page-heading">
+          <div>
+            <span class="eyebrow">ACCOUNT INTEGRITY</span>
+            <h2>Change Password</h2>
+            <p>Update your authentication password to ensure session security.</p>
+          </div>
+        </div>
+        <div class="card form-card password-card">
+          <form id="changePasswordForm">
+            <div class="form-group">
+              <label for="currentPassword">Current Password</label>
+              <div class="input-wrap">
+                <span class="input-icon">🔒</span>
+                <input id="currentPassword" type="password" autocomplete="current-password" placeholder="Enter current password" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="newPasswordChange">New Password</label>
+              <div class="input-wrap">
+                <span class="input-icon">🔑</span>
+                <input id="newPasswordChange" type="password" minlength="6" autocomplete="new-password" placeholder="Choose a strong password" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="confirmPasswordChange">Confirm New Password</label>
+              <div class="input-wrap">
+                <span class="input-icon">🔑</span>
+                <input id="confirmPasswordChange" type="password" minlength="6" autocomplete="new-password" placeholder="Retype new password" required />
+              </div>
+            </div>
+            <button class="btn btn-primary" type="submit">
+              <span>Update Password</span>
+              <span class="btn-arrow">✓</span>
+            </button>
+            <span id="changePasswordMessage" class="message" role="status"></span>
+          </form>
+        </div>
+      </section>
+
+      <!-- ================= VIEW: SUBMIT CLAIM (CLAIMANT ONLY) ================= -->
+      <section id="view-claim" class="dash-view hidden">
+        <div class="page-heading">
+          <div>
+            <span class="eyebrow">CLAIM INTAKE</span>
+            <h2>Submit New Claim</h2>
+            <p>Provide verified policy details, financial loss estimate, and upload supporting proof.</p>
+          </div>
+        </div>
+        <div class="card form-card">
+          <form id="claimForm">
+            <div class="grid2">
+              <div class="form-group">
+                <label for="policyNumber">Policy Number</label>
+                <div class="input-wrap">
+                  <span class="input-icon">📜</span>
+                  <input id="policyNumber" required placeholder="POL-5001" class="mono-input" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="amount">Estimated Claim Amount (₹)</label>
+                <div class="input-wrap">
+                  <span class="input-icon">₹</span>
+                  <input id="amount" type="number" min="1" step="0.01" required placeholder="150000" class="mono-input" />
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="description">Incident Summary &amp; Loss Details</label>
+              <textarea id="description" rows="4" required placeholder="Describe the incident date, damages observed, and underlying cause..."></textarea>
+            </div>
+            <div class="form-group">
+              <label for="document">Supporting Document (Bills, Photos, Survey Reports)</label>
+              <div class="file-upload-zone" id="fileUploadZone">
+                <div class="file-zone-icon">📁</div>
+                <div class="file-zone-text">
+                  <span class="file-zone-prompt"><b>Click to browse</b> or drag and drop</span>
+                  <small>PDF, PNG, JPG, JPEG, DOC, DOCX up to 10MB</small>
+                </div>
+                <input id="document" type="file" required accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" />
+                <div id="fileSelectedBadge" class="file-selected-badge hidden">
+                  <span class="doc-icon">📄</span>
+                  <span id="selectedFileName">No file selected</span>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-primary" type="submit">
+              <span>Submit Claim for Review</span>
+              <span class="btn-arrow">→</span>
+            </button>
+            <span id="submitMessage" class="message" role="status"></span>
+          </form>
+        </div>
+      </section>
+
+      <!-- ================= VIEW: CLAIMS LIST ================= -->
+      <section id="view-claims" class="dash-view hidden">
+        <div class="page-heading">
+          <div>
+            <span class="eyebrow">CLAIMS REGISTRY</span>
+            <h2 id="claimsTitle">Claims</h2>
+            <p id="claimsHint">Track current state, actions, and workflow history.</p>
+          </div>
+          <button class="btn btn-secondary" id="refreshBtn" type="button">
+            <span>Refresh Claims</span>
+            <span class="btn-icon">↻</span>
+          </button>
+        </div>
+
+        <!-- Claims Search & Filter Bar -->
+        <div class="claims-toolbar">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input id="claimSearchInput" type="text" placeholder="Search by claim ID, policy, claimant, description..." aria-label="Search claims" />
+            <button id="clearSearchBtn" class="clear-search-btn hidden" type="button" aria-label="Clear search">✕</button>
+          </div>
+          <div class="filter-group" id="claimFilterGroup">
+            <button class="filter-chip active" data-filter="ALL" type="button">All Claims</button>
+            <button class="filter-chip" data-filter="PENDING" type="button">Under Review</button>
+            <button class="filter-chip" data-filter="APPROVED" type="button">Approved</button>
+            <button class="filter-chip" data-filter="SETTLED" type="button">Settled</button>
+            <button class="filter-chip" data-filter="REJECTED" type="button">Rejected / Fraud</button>
+          </div>
+        </div>
+
+        <div class="claims-list-counter" id="claimsCountBar">Showing all claims</div>
+
+        <div id="claimsList" class="claims-list"></div>
+      </section>
+    </section>
+  </section>
+</main>
+
+<!-- ================= ACTION CONFIRMATION MODAL ================= -->
+<div id="actionModal" class="action-modal hidden" role="dialog" aria-modal="true" aria-labelledby="actionModalTitle">
+  <div class="action-modal-backdrop"></div>
+  <div class="action-modal-card">
+    <div class="modal-icon" id="actionModalIcon">!</div>
+    <div class="modal-content">
+      <span class="eyebrow">CONFIRM WORKFLOW ACTION</span>
+      <h3 id="actionModalTitle">Confirm</h3>
+      <p id="actionModalClaim" class="modal-claim mono-text"></p>
+      <p id="actionModalMessage" class="modal-message"></p>
+
+      <div id="settlementFields" class="settlement-fields hidden">
+        <div class="settlement-heading">
+          <span class="settle-badge">FINANCE</span>
+          <span>Payment Settlement Execution</span>
+        </div>
+        <div class="settlement-grid">
+          <div class="form-group">
+            <label for="paymentMethod">Payment Method</label>
+            <select id="paymentMethod">
+              <option value="">Select payment method</option>
+              <option value="BANK_TRANSFER">Bank Transfer (NEFT/RTGS/IMPS)</option>
+              <option value="UPI">Instant UPI</option>
+              <option value="CHEQUE">Corporate Cheque</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="settlementAmount">Settlement Amount (₹)</label>
+            <input id="settlementAmount" type="number" min="0.01" step="0.01" class="mono-input" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="transactionReference">Transaction / UTR Reference</label>
+          <input id="transactionReference" maxlength="120" placeholder="e.g. UTR-20260927-48200192" class="mono-input" />
+        </div>
+        <p class="settlement-hint">Settlement date and finance officer credentials will be logged directly to the audit stream.</p>
+      </div>
+
+      <div class="form-group">
+        <label for="actionModalNote">Optional Audit Note</label>
+        <textarea id="actionModalNote" rows="3" placeholder="Add an optional comment for the claim audit ledger..."></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="actionCancelBtn">Cancel</button>
+        <button type="button" class="btn modal-confirm btn-primary" id="actionConfirmBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= INLINE DOCUMENT PREVIEW MODAL ================= -->
+<div id="docPreviewModal" class="doc-modal hidden" role="dialog" aria-modal="true" aria-labelledby="docPreviewTitle">
+  <div class="doc-modal-backdrop" id="docModalBackdrop"></div>
+  <div class="doc-modal-card">
+    <div class="doc-modal-header">
+      <div class="doc-modal-title-group">
+        <div class="doc-modal-icon">📄</div>
+        <div>
+          <h3 id="docPreviewTitle">Document Preview</h3>
+          <p id="docPreviewMeta" class="doc-modal-sub">Loading file details...</p>
+        </div>
+      </div>
+      <div class="doc-modal-actions">
+        <a id="docPreviewDownloadBtn" class="btn btn-secondary btn-sm" href="#" download>Download ⤓</a>
+        <a id="docPreviewNewTabBtn" class="btn btn-secondary btn-sm" href="#" target="_blank" rel="noopener">Open Tab ↗</a>
+        <button id="docPreviewCloseBtn" class="modal-close-btn" type="button" aria-label="Close document preview">✕</button>
+      </div>
+    </div>
+    <div id="docPreviewContent" class="doc-modal-body">
+      <div class="doc-loading-spinner">Loading document...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Floating Notification -->
+<div id="toast" class="toast hidden" role="alert" aria-live="polite">
+  <span id="toastIcon" class="toast-icon">✓</span>
+  <span id="toastMessage"></span>
+</div>
+
+<script src="api-config.js?v=20260927"></script>
+<script src="script.js?v=20260927"></script>
+</body>
+</html>
