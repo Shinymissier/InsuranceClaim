@@ -29,7 +29,11 @@ public class AuthService {
     }
 
     public LoginResponse login(String username, String password) {
+<<<<<<< HEAD
         UserAccount user = users.findByUsername(normalizeUsername(username))
+=======
+        UserAccount user = users.findByUsername(username == null ? "" : username.trim())
+>>>>>>> 2e9d4774e4564c1303f0b69bc94ca06816c250b0
                 .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
         if (!encoder.matches(password == null ? "" : password, user.getPassword())) {
             throw new IllegalArgumentException("Invalid username or password");
@@ -49,7 +53,11 @@ public class AuthService {
     }
 
     public UserAccount requireUser(String username) {
+<<<<<<< HEAD
         UserAccount user = users.findByUsername(normalizeUsername(username))
+=======
+        UserAccount user = users.findByUsername(username)
+>>>>>>> 2e9d4774e4564c1303f0b69bc94ca06816c250b0
                 .orElseThrow(() -> new IllegalArgumentException("Unknown user: " + username));
         if (!user.isEnabled() || !user.isEmailVerified()) throw new IllegalArgumentException("Account is not active or email is not verified");
         return user;
@@ -61,6 +69,7 @@ public class AuthService {
         return user;
     }
 
+<<<<<<< HEAD
     /**
      * Creates a claimant account and triggers OTP delivery.
      * @return a two-element array: [0] = saved UserAccount, [1] = OTP string (non-null only in dev/no-SMTP mode)
@@ -79,6 +88,20 @@ public class AuthService {
         String otp = otpService.sendOtp(saved);
         users.save(saved); // persist otp hash written by sendOtp
         return new Object[]{saved, otp};
+=======
+    @Transactional
+    public UserAccount createClaimant(UserCreateRequest request) {
+        if (request == null) throw new IllegalArgumentException("Registration details are required");
+        validateNewUser(request);
+        if (users.existsByUsername(request.getUsername().trim())) throw new IllegalArgumentException("Username already exists");
+        if (users.existsByEmail(request.getEmail().trim())) throw new IllegalArgumentException("Email already exists");
+
+        UserAccount user = new UserAccount(request.getUsername().trim(), encoder.encode(request.getPassword()),
+                request.getFullName().trim(), request.getEmail().trim(), Role.CLAIMANT, false, false);
+        UserAccount saved = users.save(user);
+        otpService.sendOtp(saved);
+        return saved;
+>>>>>>> 2e9d4774e4564c1303f0b69bc94ca06816c250b0
     }
 
     @Transactional
@@ -90,6 +113,7 @@ public class AuthService {
         if (request.getPassword() == null || request.getPassword().length() < 6) throw new IllegalArgumentException("Password must contain at least 6 characters");
         if (request.getRole() == null) throw new IllegalArgumentException("Staff role is required");
         if (request.getRole() == Role.CLAIMANT || request.getRole() == Role.ADMIN) throw new IllegalArgumentException("Only staff roles can be created here");
+<<<<<<< HEAD
         String normalizedUsername = normalizeUsername(request.getUsername());
         if (users.existsByUsername(normalizedUsername)) throw new IllegalArgumentException("Username already exists");
         if (users.existsByEmail(request.getEmail().trim())) throw new IllegalArgumentException("Email already exists");
@@ -107,6 +131,18 @@ public class AuthService {
         return username.trim().toLowerCase(java.util.Locale.ROOT);
     }
 
+=======
+        if (users.existsByUsername(request.getUsername().trim())) throw new IllegalArgumentException("Username already exists");
+        if (users.existsByEmail(request.getEmail().trim())) throw new IllegalArgumentException("Email already exists");
+
+        UserAccount user = new UserAccount(request.getUsername().trim(), encoder.encode(request.getPassword()),
+                request.getFullName().trim(), request.getEmail().trim(), request.getRole(), false, false);
+        UserAccount saved = users.save(user);
+        otpService.sendOtp(saved);
+        return saved;
+    }
+
+>>>>>>> 2e9d4774e4564c1303f0b69bc94ca06816c250b0
     private void validateNewUser(UserCreateRequest request) {
         if (request.getFullName() == null || request.getFullName().isBlank()) throw new IllegalArgumentException("Full name is required");
         if (request.getEmail() == null || !request.getEmail().contains("@")) throw new IllegalArgumentException("Valid email is required");
@@ -116,7 +152,11 @@ public class AuthService {
 
     @Transactional
     public void verifyOtp(OtpRequest request) {
+<<<<<<< HEAD
         UserAccount user = users.findByUsername(normalizeUsername(request.getUsername()))
+=======
+        UserAccount user = users.findByUsername(request.getUsername() == null ? "" : request.getUsername().trim())
+>>>>>>> 2e9d4774e4564c1303f0b69bc94ca06816c250b0
                 .orElseThrow(() -> new IllegalArgumentException("Account not found"));
         if (user.isEmailVerified()) return;
         if (!otpService.verify(user, request.getOtp())) {
@@ -132,6 +172,7 @@ public class AuthService {
     }
 
     @Transactional
+<<<<<<< HEAD
     public String resendOtp(String username) {
         UserAccount user = users.findByUsername(normalizeUsername(username))
                 .orElseThrow(() -> new IllegalArgumentException("Account not found"));
@@ -139,6 +180,14 @@ public class AuthService {
         String otp = otpService.sendOtp(user);
         users.save(user);
         return otp;
+=======
+    public void resendOtp(String username) {
+        UserAccount user = users.findByUsername(username == null ? "" : username.trim())
+                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+        if (user.isEmailVerified()) throw new IllegalArgumentException("Email is already verified");
+        otpService.sendOtp(user);
+        users.save(user);
+>>>>>>> 2e9d4774e4564c1303f0b69bc94ca06816c250b0
     }
 
 

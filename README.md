@@ -136,8 +136,11 @@ Password management includes:
 If the project was already running before password reset was added, run:
 `database/users_password_reset_migration.sql`
 in the Supabase SQL Editor once. This initializes `password_reset_otp_attempts` to 0 for existing users before applying NOT NULL.
+<<<<<<< HEAD
 
 ## Authentication Fix
 The frontend now uses `api-config.js` so login/register calls go to the Spring Boot API instead of incorrectly calling the Vercel site's `/api` path. The default is `http://localhost:8080/api` for local testing. When the backend is deployed, change only `InsuranceClaim/api-config.js` (and the matching backend static copy) to the public backend `/api` URL.
 
 Usernames are normalized to lowercase by the backend so a claimant who registers as `JohnDoe` can later log in as `JohnDoe` or `johndoe`.
+=======
+>>>>>>> 2e9d4774e4564c1303f0b69bc94ca06816c250b0

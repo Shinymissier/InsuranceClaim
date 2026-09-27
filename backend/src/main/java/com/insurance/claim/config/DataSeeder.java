@@ -16,6 +16,7 @@ public class DataSeeder {
     @Value("${app.bootstrap-admin.name:}") private String name;
     @Value("${app.bootstrap-admin.email:}") private String email;
 
+<<<<<<< HEAD
     // Fallback dev credentials used when no env vars are configured
     private static final String DEV_USERNAME = "admin";
     private static final String DEV_PASSWORD = "Admin@1234";
@@ -47,6 +48,17 @@ public class DataSeeder {
                 System.out.println("  Password : " + DEV_PASSWORD);
                 System.out.println("  WARNING  : Set BOOTSTRAP_ADMIN_* env vars for production use.");
                 System.out.println("=================================================================");
+=======
+    @Bean
+    CommandLineRunner bootstrapAdmin(UserAccountRepository users, PasswordEncoder encoder) {
+        return args -> {
+            if (!username.isBlank() && !password.isBlank() && !name.isBlank() && !email.isBlank()
+                    && users.findByUsername(username.trim()).isEmpty()) {
+                UserAccount admin = new UserAccount(username.trim(), encoder.encode(password), name.trim(), email.trim(),
+                        Role.ADMIN, true, true);
+                users.save(admin);
+                System.out.println("Bootstrap admin account created from environment configuration.");
+>>>>>>> 2e9d4774e4564c1303f0b69bc94ca06816c250b0
             }
         };
     }

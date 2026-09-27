@@ -3,21 +3,30 @@ package com.insurance.claim.controller;
 import com.insurance.claim.dto.*;
 import com.insurance.claim.model.UserAccount;
 import com.insurance.claim.service.AuthService;
+<<<<<<< HEAD
 import com.insurance.claim.service.EmailOtpService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
+=======
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+>>>>>>> 2e9d4774e4564c1303f0b69bc94ca06816c250b0
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
     private final AuthService auth;
+<<<<<<< HEAD
     private final EmailOtpService otpService;
     public AuthController(AuthService auth, EmailOtpService otpService) {
         this.auth = auth;
         this.otpService = otpService;
     }
+=======
+    public AuthController(AuthService auth) { this.auth = auth; }
+>>>>>>> 2e9d4774e4564c1303f0b69bc94ca06816c250b0
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
@@ -28,6 +37,7 @@ public class AuthController {
     @PostMapping("/register-claimant")
     public ResponseEntity<?> registerClaimant(@RequestBody UserCreateRequest request) {
         try {
+<<<<<<< HEAD
             Object[] result = auth.createClaimant(request);
             UserAccount created = (UserAccount) result[0];
             String devOtp = (String) result[1];
@@ -43,6 +53,14 @@ public class AuthController {
                 body.put("message", "Claimant account created. OTP sent to the registered email.");
             }
             return ResponseEntity.ok(body);
+=======
+            UserAccount created = auth.createClaimant(request);
+            return ResponseEntity.ok(Map.of(
+                    "username", created.getUsername(),
+                    "email", created.getEmail(),
+                    "message", "Claimant account created. OTP sent to the registered email."
+            ));
+>>>>>>> 2e9d4774e4564c1303f0b69bc94ca06816c250b0
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage() == null ? "Registration failed" : e.getMessage()));
         }
@@ -93,6 +111,7 @@ public class AuthController {
 
     @PostMapping("/resend-otp")
     public ResponseEntity<?> resendOtp(@RequestParam String username) {
+<<<<<<< HEAD
         try {
             String devOtp = auth.resendOtp(username);
             Map<String, Object> body = new HashMap<>();
@@ -103,6 +122,10 @@ public class AuthController {
             }
             return ResponseEntity.ok(body);
         } catch (Exception e) { return ResponseEntity.badRequest().body(Map.of("message", e.getMessage())); }
+=======
+        try { auth.resendOtp(username); return ResponseEntity.ok(Map.of("message", "A new OTP was sent to the registered email.")); }
+        catch (Exception e) { return ResponseEntity.badRequest().body(Map.of("message", e.getMessage())); }
+>>>>>>> 2e9d4774e4564c1303f0b69bc94ca06816c250b0
     }
 
     private String bearer(String value) {
